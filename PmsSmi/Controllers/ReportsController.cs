@@ -19,7 +19,8 @@ namespace PmsSmi.Controllers
         {
             _context = context;
         }
-        // GET: api/Projects
+        // !!!!ATTENTION!!!!
+        // to retrieve xlsx file you should call GET with header Accept application/vnd.ms-excel
         [HttpGet]
         public ActionResult<IEnumerable<model.WorkflowItem>> GetReports()
         {
