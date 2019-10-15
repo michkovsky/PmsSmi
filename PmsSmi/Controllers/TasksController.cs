@@ -70,7 +70,7 @@ namespace PmsSmi.Controllers
                         {
                             f(chld);
                         }
-                    if (item.State != item.CalculatedState)
+                    if (item.State != item.CalculatedState && item is model.Project)
                     {
                         item.State = item.CalculatedState;
                         switch (item.State)
