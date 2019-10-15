@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PmsSmi.Data;
+using PmsSmi.Formatters;
 
 namespace PmsSmi
 {
@@ -27,8 +29,13 @@ namespace PmsSmi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //TODO smi: we should improve formatter
+            services.Configure<KestrelServerOptions>(optins => {
+                optins.AllowSynchronousIO = true;
+            });
+
             services.AddControllers(options=> {
-                options.OutputFormatters.Add(new Controllers.XslxFormatter());
+                options.OutputFormatters.Add(new XlsxFormatter());
             }).AddNewtonsoftJson();
             services.AddDbContext<PmsDbContext>(options =>
             {
