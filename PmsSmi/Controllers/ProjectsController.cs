@@ -25,15 +25,15 @@ namespace PmsSmi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
         {
-            return await _context.Projects.ToListAsync();
+            return await _context.Projects.Where(p=>p.Parent==null).Include(p=>p.Childs).ToListAsync();
         }
 
         // GET: api/Projects/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id)
+        public async Task<ActionResult<Project>> GetProject(int id) //TODO smi: we also need deep whole tree retrive signature
         {
             var project = await _context.Projects.FindAsync(id);
-
+            await _context.Entry(project).Collection(p => p.Childs).LoadAsync();
             if (project == null)
             {
                 return NotFound();
