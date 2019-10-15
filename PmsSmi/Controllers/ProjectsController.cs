@@ -12,13 +12,11 @@ namespace PmsSmi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProjectsController : ControllerBase
+    public class ProjectsController : WorkflowControllerBase
     {
-        private readonly PmsDbContext _context;
 
-        public ProjectsController(PmsDbContext context)
+        public ProjectsController(PmsDbContext context):base(context)
         {
-            _context = context;
         }
 
         // GET: api/Projects
@@ -58,6 +56,9 @@ namespace PmsSmi.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                await ProccessWorkflow(id);
+                await _context.SaveChangesAsync();
+
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -83,6 +84,8 @@ namespace PmsSmi.Controllers
             var p = project.ToProject();
             _context.Projects.Add(p);
             await _context.SaveChangesAsync();
+            await ProccessWorkflow(p.Id);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetProject", new { id = p.Id }, p);
         }
@@ -99,7 +102,9 @@ namespace PmsSmi.Controllers
 
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
-
+            var parentId = project.ParentId??0;
+            await ProccessWorkflow(parentId);
+            await _context.SaveChangesAsync();
             return project;
         }
 

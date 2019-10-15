@@ -8,20 +8,15 @@ using Microsoft.EntityFrameworkCore;
 using PmsSmi.Data;
 using model = PmsSmi.Data.Model;
 using PmsSmi.Data.Model;
+using PmsSmi.Logic;
 
 namespace PmsSmi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TasksController : ControllerBase
+    public class TasksController : WorkflowControllerBase
     {
-        private readonly PmsDbContext _context;
-
-        public TasksController(PmsDbContext context)
-        {
-            _context = context;
-        }
-
+        public TasksController(PmsDbContext context) : base(context) { }
         // GET: api/Tasks
         [HttpGet]
         public async Task<ActionResult<IEnumerable<model.Task>>> GetTasks()
@@ -61,36 +56,7 @@ namespace PmsSmi.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                Project root = await _context.GetWholeTreeAsync(id);
-                Func<WorkflowItem, WorkflowItem> f=null;
-                f = (item) =>
-                {
-                    if (item.Childs != null || item.Childs.Any())
-                        foreach (var chld in item.Childs)
-                        {
-                            f(chld);
-                        }
-                    if (item.State != item.CalculatedState && item is model.Project)
-                    {
-                        item.State = item.CalculatedState;
-                        switch (item.State)
-                        {
-                            case WorkflowState.Planned:
-                                item.StartDate = item.FinishDate = null;
-                                break;
-                            case WorkflowState.InProgress:
-                                item.StartDate = DateTime.Now;
-                                break;
-                            case WorkflowState.Completed:
-                                item.FinishDate = DateTime.Now;
-                                break;
-                        }
-                        _context.Entry(item).State = EntityState.Modified;
-                    }
-
-                    return item;
-                };
-                f(root);
+                await ProccessWorkflow(id);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -117,6 +83,8 @@ namespace PmsSmi.Controllers
             var t = task.ToTask();
             _context.Tasks.Add(t);
             await _context.SaveChangesAsync();
+            await ProccessWorkflow(t.Id);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetTask", new { id = t.Id }, t);
         }
@@ -133,7 +101,9 @@ namespace PmsSmi.Controllers
 
             _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
-
+            var parentId = task.ParentId ?? 0;
+            await ProccessWorkflow(parentId);
+            await _context.SaveChangesAsync();
             return task;
         }
 
