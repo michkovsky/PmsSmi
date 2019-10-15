@@ -9,6 +9,7 @@ namespace PmsSmi.Data.Model
     {
         public int Id { get; set; }
         public virtual WorkflowItem Parent { get; set; }
+        public int? ParentId { get; set; }
         public string Name { get; set; }
         public HashSet<WorkflowItem> Childs { get; set; } = new HashSet<WorkflowItem>();
         public DateTime? StartDate { get; set; }
