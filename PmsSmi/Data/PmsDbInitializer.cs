@@ -14,11 +14,12 @@ namespace PmsSmi.Data
             {
                 return;
             }
-            context.Projects.Add(ProjectTree);
+            context.Projects.Add(ProjectTree1);
+            context.Projects.Add(ProjectTree2);
             context.SaveChanges();
         }
 
-        static Project ProjectTree = new Project {
+        static Project ProjectTree1 = new Project {
             Name = "Test project", Code = "p1",
             Childs = new HashSet<WorkflowItem>(
                 new[]
@@ -49,6 +50,26 @@ namespace PmsSmi.Data
                                     new Task{ Name = "Task 5" },
                                     new Task{ Name = "Task 6" },
                                 })
+                        },
+        })
+        };
+        static Project ProjectTree2 = new Project
+        {
+            Name = "Test project1",
+            Code = "p2",
+            Childs = new HashSet<WorkflowItem>(
+                new[]
+                {
+                        new Project{
+                            Name="Read reqs",Code="p2-1",
+                            Childs = new HashSet<WorkflowItem>(
+                                new WorkflowItem[]
+                                {
+                                    new Project{Name ="subproj 3", Code="p2-1-1"},
+                                })
+                        },
+                        new Project{
+                            Name="Write code", Code="p2-2",
                         },
         })
         };
