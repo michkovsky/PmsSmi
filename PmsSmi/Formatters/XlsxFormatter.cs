@@ -76,13 +76,6 @@ namespace PmsSmi.Formatters
                 xdoc.Save(partStream);
 
             }
-            //partStream.Flush();
-            //partStream.Seek(0, SeekOrigin.Begin);
-            //partStream.Close();
-
-
-            //xlPackage.Flush();
-            //xlPackage.Close();
 
             {
                 workingCopy.Seek(0, SeekOrigin.Begin);
