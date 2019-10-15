@@ -21,7 +21,9 @@ namespace PmsSmi.Data
                     .HasValue<model.Task>(model.WorkflowItemType.Task);
                 ent.HasMany(p => p.Childs)
                     .WithOne(p => p.Parent)
-                    .HasForeignKey(p => p.ParentId); 
+                    .HasForeignKey(p => p.ParentId);
+
+                ent.Ignore(p => p.CalculatedState); //not cute
             }
             {
                 modelBuilder.Entity<model.Project>().Property(p => p.Code).HasMaxLength(8).IsRequired(true);

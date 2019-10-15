@@ -43,6 +43,8 @@ namespace PmsSmi.Controllers
             return task;
         }
 
+        
+
         // PUT: api/Tasks/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -58,6 +60,37 @@ namespace PmsSmi.Controllers
 
             try
             {
+                await _context.SaveChangesAsync();
+                Project root = await _context.GetWholeTreeAsync(id);
+                Func<WorkflowItem, WorkflowItem> f=null;
+                f = (item) =>
+                {
+                    if (item.Childs != null || item.Childs.Any())
+                        foreach (var chld in item.Childs)
+                        {
+                            f(chld);
+                        }
+                    if (item.State != item.CalculatedState)
+                    {
+                        item.State = item.CalculatedState;
+                        switch (item.State)
+                        {
+                            case WorkflowState.Planned:
+                                item.StartDate = item.FinishDate = null;
+                                break;
+                            case WorkflowState.InProgress:
+                                item.StartDate = DateTime.Now;
+                                break;
+                            case WorkflowState.Completed:
+                                item.FinishDate = DateTime.Now;
+                                break;
+                        }
+                        _context.Entry(item).State = EntityState.Modified;
+                    }
+
+                    return item;
+                };
+                f(root);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)

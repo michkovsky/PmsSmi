@@ -11,7 +11,6 @@ namespace PmsSmi.Data.Model
     {
         public int? ParentId { get; set; }
         public string Name { get; set; }
-
     }
     public abstract class WorkflowItem:WorkflowItemPostRequest
     {
@@ -23,6 +22,30 @@ namespace PmsSmi.Data.Model
         public DateTime? FinishDate { get; set; }
         public virtual WorkflowState State { get; set; }
         public virtual WorkflowItemType ItemType { get; set; }
+        public WorkflowState CalculatedState
+        {
+            get
+            {
+                var all = Childs.Count();
+                var groups = Childs.GroupBy(t => t.CalculatedState);
+                var ret = WorkflowState.Planned;
+
+                switch (groups.Count())
+                {
+                    case 0:
+                        ret = State;
+                        break;
+                    case 1:
+                        ret = groups.First().Key;
+                        break;
+                    case 2:
+                    case 3:
+                        ret = WorkflowState.InProgress;
+                        break;
+                }
+                return ret;
+            }
+        }
 
     }
     public interface IProject
