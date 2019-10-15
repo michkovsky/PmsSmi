@@ -78,12 +78,13 @@ namespace PmsSmi.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Project>> PostProject(Project project)
+        public async Task<ActionResult<Project>> PostProject(ProjectPostRequest project)
         {
-            _context.Projects.Add(project);
+            var p = project.To();
+            _context.Projects.Add(p);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProject", new { id = project.Id }, project);
+            return CreatedAtAction("GetProject", new { id = p.Id }, p);
         }
 
         // DELETE: api/Projects/5

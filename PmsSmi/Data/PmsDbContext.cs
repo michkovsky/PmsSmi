@@ -14,7 +14,7 @@ namespace PmsSmi.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             {
-                var ent = modelBuilder.Entity<model.WorkflowItem>();
+                var ent = modelBuilder.Entity<model.WorkflowItem>().ToTable("WorkflowItem");
                 ent.Property(p => p.Name).HasMaxLength(16).IsRequired(true);
                 ent.HasDiscriminator<model.WorkflowItemType>(p => p.ItemType)
                     .HasValue<model.Project>(model.WorkflowItemType.Project)
