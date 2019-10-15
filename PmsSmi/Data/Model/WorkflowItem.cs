@@ -39,20 +39,36 @@ namespace PmsSmi.Data.Model
     {
         public string Code { get; set; }
     }
-    public static class ProjectConverter
+    public static class WorkflowItemConverter
     {
-        public static Project To(this ProjectPostRequest p)
+        public static Project ToProject(this ProjectPostRequest p)
         {
             return new Project
             {
-               ParentId=p.ParentId,
-               Code=p.Code,
-               Name=p.Name,
+                ParentId = p.ParentId,
+                Code = p.Code,
+                Name = p.Name,
+            };
+        }
+        public static Task ToTask(this TaskPostRequest t)
+        {
+            return new Task
+            {
+                ParentId = t.ParentId,
+                Description = t.Description,
+                Name = t.Name,
             };
         }
     }
-
-    public class Task : WorkflowItem
+    public interface ITask
+    {
+        string Description { get; set; }
+    }
+    public class TaskPostRequest : WorkflowItemPostRequest, ITask
+    {
+        public string Description { get; set; }
+    }
+    public class Task : WorkflowItem,ITask
     {
         public string Description { get; set; }
         public override WorkflowItemType ItemType { get => WorkflowItemType.Task; set => base.ItemType = WorkflowItemType.Task; }

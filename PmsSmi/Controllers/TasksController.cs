@@ -6,54 +6,55 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PmsSmi.Data;
+using model = PmsSmi.Data.Model;
 using PmsSmi.Data.Model;
 
 namespace PmsSmi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProjectsController : ControllerBase
+    public class TasksController : ControllerBase
     {
         private readonly PmsDbContext _context;
 
-        public ProjectsController(PmsDbContext context)
+        public TasksController(PmsDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Projects
+        // GET: api/Tasks
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        public async Task<ActionResult<IEnumerable<model.Task>>> GetTasks()
         {
-            return await _context.Projects.Where(p=>p.Parent==null).Include(p=>p.Childs).ToListAsync();
+            return await _context.Tasks.ToListAsync();
         }
 
-        // GET: api/Projects/5
+        // GET: api/Tasks/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Project>> GetProject(int id) //TODO smi: we also need deep whole tree retrive signature
+        public async Task<ActionResult<model.Task>> GetTask(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
-            await _context.Entry(project).Collection(p => p.Childs).LoadAsync();
-            if (project == null)
+            var task = await _context.Tasks.FindAsync(id);
+            await _context.Entry(task).Collection(p => p.Childs).LoadAsync();
+            if (task == null)
             {
                 return NotFound();
             }
 
-            return project;
+            return task;
         }
 
-        // PUT: api/Projects/5
+        // PUT: api/Tasks/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProject(int id, Project project)
+        public async Task<IActionResult> PutTask(int id, model.Task task)
         {
-            if (id != project.Id)
+            if (id != task.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(project).State = EntityState.Modified;
+            _context.Entry(task).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +62,7 @@ namespace PmsSmi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProjectExists(id))
+                if (!TaskExists(id))
                 {
                     return NotFound();
                 }
@@ -74,38 +75,38 @@ namespace PmsSmi.Controllers
             return NoContent();
         }
 
-        // POST: api/Projects
+        // POST: api/Tasks
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Project>> PostProject(ProjectPostRequest project)
+        public async Task<ActionResult<model.Task>> PostTask(model.TaskPostRequest task)
         {
-            var p = project.ToProject();
-            _context.Projects.Add(p);
+            var t = task.ToTask();
+            _context.Tasks.Add(t);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProject", new { id = p.Id }, p);
+            return CreatedAtAction("GetTask", new { id = t.Id }, t);
         }
 
-        // DELETE: api/Projects/5
+        // DELETE: api/Tasks/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Project>> DeleteProject(int id)
+        public async Task<ActionResult<model.Task>> DeleteTask(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null)
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null)
             {
                 return NotFound();
             }
 
-            _context.Projects.Remove(project);
+            _context.Tasks.Remove(task);
             await _context.SaveChangesAsync();
 
-            return project;
+            return task;
         }
 
-        private bool ProjectExists(int id)
+        private bool TaskExists(int id)
         {
-            return _context.Projects.Any(e => e.Id == id);
+            return _context.Tasks.Any(e => e.Id == id);
         }
     }
 }
